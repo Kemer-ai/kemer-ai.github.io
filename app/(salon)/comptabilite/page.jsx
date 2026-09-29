@@ -4,10 +4,10 @@
 import { useMemo } from "react";
 import ComptaClient from "@/app/comptabilite/ComptaClient";
 import { useDemo } from "../demo-context";
-import { FACTURES_COMPTA, PATIENTS_COMPTA, EQUIPE } from "../data";
+import { PATIENTS_COMPTA, EQUIPE } from "../data";
 
 export default function ComptaDemo() {
-  const { patients } = useDemo();
+  const { patients, compta } = useDemo();
 
   const donnees = useMemo(() => {
     const thomas = EQUIPE[0];
@@ -20,8 +20,8 @@ export default function ComptaDemo() {
           praticien: { id: thomas.id, prenom: thomas.prenom, nom: thomas.nom, cabinetRole: thomas.cabinetRole, pourcentageReversement: thomas.pourcentageReversement },
         })),
     );
-    return [...creees, ...FACTURES_COMPTA].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }, [patients]);
+    return [...creees, ...compta].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, [patients, compta]);
 
   return <ComptaClient initialData={donnees} patients={PATIENTS_COMPTA} cabinetMembres={EQUIPE} />;
 }

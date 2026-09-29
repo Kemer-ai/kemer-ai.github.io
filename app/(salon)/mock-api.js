@@ -2,7 +2,7 @@
 // Dans la démo, aucun de ces appels ne doit partir : ils reçoivent une réponse factice locale.
 // Tout ce qui n'est pas /api/ (polices, images, scripts) passe normalement.
 import { normaliser } from "@/lib/patientReport";
-import { CABINET_DEMO, ORDONNANCE_DICTEE, CONSULTATIONS_QR, DOCUMENTS_QR } from "./data";
+import { CABINET_DEMO, ORDONNANCE_DICTEE, CONSULTATIONS_QR, DOCUMENTS_QR, PATIENTS_COMPTA, EQUIPE } from "./data";
 
 // Consultations connues de la démo : la version « patient » d'un CR est mise en page par le vrai
 // PatientReportPDF à partir de textes préparés, sans appel au modèle.
@@ -79,14 +79,47 @@ export function installerApiFactice() {
     }
     if (fiche && methode === "PUT") {
       const e = registre.get(fiche[1]);
+      const patch = corps(init);
       if (e) {
-        const patch = corps(init);
         const maj = { ...e.consultation, ...patch };
         if (patch.devisData) maj.devisData = { ...(e.consultation.devisData || {}), ...patch.devisData };
         registre.set(fiche[1], { ...e, consultation: maj });
         ecouteur?.maj(maj);
+      } else {
+        ecouteur?.majPaiement(fiche[1], patch); // règlement de la comptabilité
       }
       return json({ success: true });
+    }
+    if (fiche && methode === "DELETE") {
+      registre.delete(fiche[1]);
+      ecouteur?.suppr(fiche[1]);
+      return json({ success: true });
+    }
+
+    // Comptabilité : « Ajouter un règlement ». Rattaché à un CR existant s'il est choisi, sinon nouvelle séance.
+    if (methode === "POST" && route === "/api/consultation/payment") {
+      const { patientId, montant, modePaiement, date, consultationId } = corps(init);
+      const devisData = {
+        items: [{ description: "Séance bilan podologique", quantity: 1, unitPrice: montant }],
+        totalAmount: String(montant), status: "SIGNED", modePaiement, factureDate: date || new Date().toISOString(),
+      };
+      const lie = consultationId && registre.get(consultationId);
+      if (lie) {
+        const maj = { ...lie.consultation, typeConsultation: "facturation", devisData };
+        registre.set(consultationId, { ...lie, consultation: maj });
+        ecouteur?.maj(maj);
+        return json({ success: true, consultationId });
+      }
+      const patient = ecouteur?.patient(patientId) || PATIENTS_COMPTA.find((p) => p.id === patientId);
+      const thomas = EQUIPE[0];
+      const tx = {
+        id: `demo-pay-${Date.now()}`, createdAt: date || new Date().toISOString(), typeConsultation: "facturation",
+        patientId, patient: patient && { id: patient.id, prenom: patient.prenom, nom: patient.nom },
+        praticienId: thomas.id, praticien: { id: thomas.id, prenom: thomas.prenom, nom: thomas.nom, cabinetRole: thomas.cabinetRole, pourcentageReversement: thomas.pourcentageReversement },
+        reportData: null, factureData: null, signatureFacture: null, devisData,
+      };
+      ecouteur?.ajoutPaiement(tx);
+      return json({ success: true, consultationId: tx.id });
     }
 
     if (methode === "POST" && route === "/api/facturation") {
@@ -141,9 +174,14 @@ export function installerApiFactice() {
     if (route === "/api/stripe/portal") return json({ error: "Le portail de facturation n'est pas disponible dans la démo." });
     if (route.startsWith("/api/notifications")) return json([]);
     if (route.startsWith("/api/image-proxy")) return new Response(null, { status: 404 });
-    if (route.startsWith("/api/patients") && methode === "POST") {
-      return json({ ...corps(init), id: `demo-${Date.now()}`, consultations: [], createdAt: new Date().toISOString() });
+    if (route === "/api/patients" && methode === "POST") {
+      const p = { ...corps(init), id: `demo-${Date.now()}`, consultations: [], createdAt: new Date().toISOString() };
+      ecouteur?.patientAjout(p);
+      return json(p);
     }
+    const fichePatient = route.match(/^\/api\/patients\/([^/]+)$/);
+    if (fichePatient && methode === "PUT") { ecouteur?.patientMaj(fichePatient[1], corps(init)); return json({ success: true }); }
+    if (fichePatient && methode === "DELETE") { ecouteur?.patientSuppr(fichePatient[1]); return json({ success: true }); }
     return json({ ok: true, success: true });
   };
   return () => { window.fetch = original; };

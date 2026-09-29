@@ -1,0 +1,45 @@
+"use client";
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
+import { PATIENTS_INITIAUX, brutDepuisCR } from "./data";
+import { enregistrerCR, reinitialiserCabinet, ecouterConsultations } from "./mock-api";
+
+PATIENTS_INITIAUX.forEach((p) => p.consultations.forEach((c) => enregistrerCR(c, p, brutDepuisCR(c.reportData))));
+
+// État de la démo, partagé entre l'accueil et « Mes Patients » : un CR créé en live apparaît
+// dans le dossier du patient. Vit dans le layout, donc survit à la navigation.
+const DemoContext = createContext(null);
+
+export function DemoProvider({ children }) {
+  const [patients, setPatients] = useState(PATIENTS_INITIAUX);
+  const [version, setVersion] = useState(0);
+
+  const ajouterConsultation = useCallback((patientId, consultation) => {
+    setPatients((ps) => ps.map((p) => (p.id === patientId ? { ...p, consultations: [consultation, ...p.consultations] } : p)));
+  }, []);
+
+  const patientsRef = useRef(patients);
+  useEffect(() => { patientsRef.current = patients; }, [patients]);
+
+  // Consultations créées ou modifiées par les blocs de l'app (via l'API factice).
+  useEffect(() => ecouterConsultations({
+    patient: (id) => patientsRef.current.find((p) => p.id === id),
+    ajout: (c) => setPatients((ps) => ps.map((p) => (p.id === c.patientId ? { ...p, consultations: [c, ...p.consultations] } : p))),
+    maj: (c) => setPatients((ps) => ps.map((p) => (p.id === c.patientId ? { ...p, consultations: p.consultations.map((x) => (x.id === c.id ? c : x)) } : p))),
+  }), []);
+
+  const ajouterPatient = useCallback((p) => setPatients((ps) => [p, ...ps]), []);
+
+  const reinitialiser = useCallback(() => {
+    setPatients(PATIENTS_INITIAUX);
+    reinitialiserCabinet();
+    setVersion((v) => v + 1); // remonte les pages : leur état interne repart de zéro
+  }, []);
+
+  return (
+    <DemoContext.Provider value={{ patients, ajouterConsultation, ajouterPatient, reinitialiser, version }}>
+      {children}
+    </DemoContext.Provider>
+  );
+}
+
+export const useDemo = () => useContext(DemoContext);

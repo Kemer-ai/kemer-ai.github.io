@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Surcharge le mode sombre de Tailwind pour écouter la classe .dark */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f8fafc;
+  --foreground: #001F3F;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@theme {
+  /* On dit à Tailwind v4 de remplacer sa police "sans" par défaut par notre variable */
+  --font-sans: var(--font-montserrat), sans-serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

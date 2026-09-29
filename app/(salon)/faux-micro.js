@@ -10,7 +10,7 @@ export const definirDictee = (t) => { texte = t; position = 0; };
 export const definirVitesse = (r) => { rapide = r; };
 
 // Web Speech : émet la dictée par morceaux de 3 mots (provisoire, puis définitif), comme Chrome.
-class FausseReconnaissance {
+export class FausseReconnaissance {
   constructor() {
     this.lang = "";
     this.continuous = false;
@@ -39,8 +39,17 @@ class FausseReconnaissance {
     this.minuteur = setTimeout(suivant, 300);
   }
   stop() {
+    const actif = this.actif;
     this.actif = false;
     clearTimeout(this.minuteur);
+    // Arrêt avant la fin de la dictée : la note contient quand même tout le texte, comme le CR complet
+    // que la démo affiche à l'arrêt, même après quelques secondes d'enregistrement.
+    const mots = texte.split(" ").filter(Boolean);
+    if (actif && position < mots.length) {
+      const reste = mots.slice(position).join(" ");
+      position = 0;
+      this.onresult?.({ resultIndex: 0, results: [{ isFinal: true, 0: { transcript: reste } }] });
+    }
     this.onend?.();
   }
 }

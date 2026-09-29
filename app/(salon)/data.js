@@ -54,7 +54,7 @@ export const CABINET_DEMO = {
   invitations: [],
 };
 
-const cr = (motif, anamnese, examen, bilan, diagnostic, traitement, recommandations) => ({
+const cr = (motif, anamnese, examen, bilan, diagnostic, traitement, recommandations) => Object.fromEntries(Object.entries({
   motif_consultation: motif,
   anamnese,
   examen_clinique: examen,
@@ -62,7 +62,7 @@ const cr = (motif, anamnese, examen, bilan, diagnostic, traitement, recommandati
   diagnostic,
   traitement,
   recommandations,
-});
+}).filter(([, contenu]) => contenu));
 
 
 // Réponse « brute » que le modèle renverrait pour la version patient (consigne de lib/patientReport.js).
@@ -134,101 +134,101 @@ export const PATIENTS_INITIAUX = [
   patient("demo-p3", "Léa", "FONTAINE", "2018-06-21T00:00:00.000Z", "06 00 00 00 03", "Paris"),
   patient("demo-p4", "Sophie", "MARCHAND", "1974-01-09T00:00:00.000Z", "06 00 00 00 04", "Montreuil", [
     consult("demo-p4", 12, cr(
-      "Douleur de l'avant-pied gauche au chaussage, gêne croissante depuis 6 mois.",
-      "Patiente de 52 ans, travail debout. Pas d'antécédent chirurgical. Mère porteuse d'un hallux valgus.",
-      "Hallux valgus gauche, angle estimé à 28°. Bursite inflammatoire en regard de la 1re tête métatarsienne. Durillon sous la 2e tête métatarsienne.",
-      "Avant-pied élargi, insuffisance du 1er rayon. Appui métatarsien central surchargé.",
-      "Hallux valgus symptomatique avec métatarsalgie de transfert.",
-      "Orthèses plantaires avec barre rétro-capitale. Écarteur d'orteil nocturne.",
-      "Chaussures à boîte à orteils large, talon inférieur à 3 cm."),
+      "Douleur de l'avant-pied gauche au chaussage, avec une gêne croissante depuis six mois, et demande d'avis sur la déformation du gros orteil.",
+      "Patiente de 52 ans, aide-soignante en station debout dix heures par jour, chaussée de baskets de travail. La douleur siège à la base du gros orteil gauche, aggravée par les chaussures fermées et en fin de journée, cotée 5/10. Mère porteuse d'un hallux valgus opéré. Aucun antécédent chirurgical personnel, pas de traitement en cours, pas de diabète connu. A essayé des protections en gel en pharmacie, avec un soulagement partiel.",
+      "Hallux valgus gauche avec un angle métatarso-phalangien estimé à 28°, bursite inflammatoire en regard de la première tête métatarsienne (rouge, chaude, douloureuse à la pression). Durillon sous la deuxième tête métatarsienne gauche. Mobilité de la première articulation métatarso-phalangienne conservée, sans blocage. Pas de déformation en griffe des orteils. Côté droit : hallux valgus débutant, indolore.",
+      "Avant-pied élargi avec insuffisance du premier rayon et appui métatarsien central surchargé à la podobarométrie. Pieds plats souples avec valgus calcanéen de 6°.",
+      "Hallux valgus symptomatique du pied gauche avec bursite et métatarsalgie de transfert sous la deuxième tête. Hallux valgus débutant à droite.",
+      "Confection d'orthèses plantaires avec soutien du premier rayon et barre rétro-capitale de décharge de la deuxième tête métatarsienne. Écarteur d'orteil nocturne en silicone. Protecteur de bursite pour les chaussures fermées.",
+      "Chaussures à boîte à orteils large, talon inférieur à 3 cm, sans couture sur la déformation. Avis orthopédique à envisager si la douleur persiste après trois mois de traitement conservateur. Contrôle à trois mois."),
       { devisData: facture(12, [["Bilan podologique", 50], ["Semelles orthopédiques", 150]]), signatureFacture: "demo" }),
   ]),
   patient("demo-p5", "Julien", "PERRIN", "1985-05-30T00:00:00.000Z", "06 00 00 00 05", "Vincennes", [
     consult("demo-p5", 17, cr(
-      "Douleur du tendon d'Achille droit, apparue à l'augmentation du kilométrage.",
-      "Coureur, préparation marathon, 55 km par semaine. Augmentation rapide du volume il y a un mois.",
-      "Tendon d'Achille épaissi à 4 cm de l'insertion, douloureux au pincement. Raideur de la cheville en flexion dorsale.",
-      "Pronation dynamique excessive à l'analyse de la course.",
-      "Tendinopathie corporéale du tendon d'Achille droit.",
-      "Talonnettes temporaires de 8 mm. Renforcement excentrique (protocole d'Alfredson).",
-      "Réduction de 30 % du volume de course pendant 3 semaines."),
+      "Douleur du tendon d'Achille droit apparue à l'augmentation du kilométrage, dans le cadre d'une préparation de marathon.",
+      "Patient de 41 ans, cadre, coureur depuis huit ans, préparation d'un marathon dans dix semaines. Volume passé de 40 à 55 km par semaine en un mois, avec ajout de séances de côtes. Douleur d'apparition progressive à 4 cm de l'insertion, raideur matinale de quelques minutes, gêne au démarrage des séances qui s'estompe à chaud, cotée 4/10. Antécédent d'un épisode similaire à gauche il y a trois ans, résolu en six semaines. Chaussures changées tous les 800 km. Ni fluoroquinolone ni corticoïde récents.",
+      "Tendon d'Achille droit épaissi à 4 cm de l'insertion, douloureux au pincement, avec un signe de l'arc douloureux positif. Insertion calcanéenne indolore. Test de Thompson négatif. Raideur de la cheville en flexion dorsale, limitée à 8° genou tendu à droite. Force du triceps sural conservée, montée sur pointes possible vingt fois.",
+      "Analyse de la course sur tapis : pronation dynamique excessive à droite, attaque talon marquée. Pieds plats souples avec valgus calcanéen de 7° à droite.",
+      "Tendinopathie corporéale du tendon d'Achille droit, d'origine mécanique, favorisée par une augmentation rapide de la charge d'entraînement.",
+      "Talonnette temporaire de 8 mm dans les chaussures de course et de ville. Orthèses plantaires thermoformées à effet de contrôle de la pronation, à réaliser après trois semaines. Protocole de renforcement excentrique du triceps sural (trois séries de quinze, deux fois par jour).",
+      "Réduction de 30 % du volume de course pendant trois semaines, sans séance de côtes ni de fractionné. Reprise progressive selon la douleur. Contrôle à un mois, avec échographie si la douleur persiste."),
       { devisData: facture(17, [["Bilan podologique", 50]]), signatureFacture: "demo" }),
   ]),
   patient("demo-p6", "Nadia", "BENALI", "1997-09-12T00:00:00.000Z", "06 00 00 00 06", "Paris", [
     consult("demo-p6", 21, cr(
-      "Lésion douloureuse à la marche sous l'avant-pied droit depuis 2 mois.",
-      "Fréquente une piscine municipale. Aucun traitement antérieur.",
-      "Lésion hyperkératosique de 6 mm avec points noirs sous la 3e tête métatarsienne. Douleur à la pression latérale.",
+      "Lésion douloureuse à la marche sous l'avant-pied droit depuis deux mois.",
+      "Patiente de 29 ans, employée de bureau, fréquente une piscine municipale deux fois par semaine. La lésion est apparue il y a deux mois et grossit lentement, douloureuse à la marche et à la pression latérale. Aucun traitement antérieur, pas d'immunodépression ni de diabète connus. Pas de lésion similaire dans l'entourage.",
+      "Lésion hyperkératosique de 6 mm de diamètre sous la troisième tête métatarsienne droite, avec des points noirs (capillaires thrombosés) et une interruption des dermatoglyphes. Douleur à la pression latérale (signe du pincement). Pas de signe de surinfection. Pas d'autre lésion sur les deux pieds.",
       "",
-      "Verrue plantaire (papillomavirus) de l'avant-pied droit.",
-      "Détersion et application de kératolytique. Protection par feutre de décharge.",
-      "Contrôle à 15 jours. Port de sandales en piscine."),
+      "Verrue plantaire (papillomavirus humain) de l'avant-pied droit.",
+      "Détersion de la lésion et application d'un kératolytique (acide salicylique). Mise en place d'un feutre de décharge autour de la lésion.",
+      "Renouveler l'application de kératolytique chaque soir après détersion à domicile. Port de sandales en piscine et dans les vestiaires. Contrôle à quinze jours, cryothérapie envisagée en cas de persistance."),
       { typeConsultation: "pedicurie", devisData: facture(21, [["Soin de pédicurie", 35]]), signatureFacture: "demo" }),
   ]),
   patient("demo-p7", "Gérard", "LAMBERT", "1952-02-25T00:00:00.000Z", "06 00 00 00 07", "Paris", [
     consult("demo-p7", 28, cr(
-      "Sensation d'instabilité et douleurs de voûte plantaire bilatérales.",
-      "Patient de 74 ans, retraité actif. Deux chutes sans gravité cette année.",
-      "Pieds plats valgus bilatéraux, affaissement de l'arche interne à la charge. Appui unipodal instable à gauche. Sensibilité vibratoire conservée.",
-      "Valgus calcanéen de 12° à droite, 10° à gauche.",
-      "Pieds plats valgus décompensés avec instabilité à la marche.",
-      "Semelles orthopédiques thermoformées. Chaussures montantes à contrefort rigide.",
-      "Exercices de proprioception quotidiens."),
+      "Sensation d'instabilité à la marche et douleurs de la voûte plantaire bilatérales.",
+      "Patient de 74 ans, retraité actif, marche quotidienne et jardinage. Deux chutes sans gravité dans l'année, dans un escalier et sur un trottoir. Douleurs de la voûte plantaire en fin de journée, cotées 4/10, soulagées au repos. Antécédents : hypertension artérielle traitée, arthrose des genoux. Pas de diabète. Chaussures de confort usées, portées depuis plus de trois ans.",
+      "Pieds plats valgus bilatéraux avec affaissement de l'arche interne à la charge. Appui unipodal instable à gauche (moins de cinq secondes), correct à droite. Sensibilité vibratoire conservée aux gros orteils. Mobilité de la cheville légèrement diminuée en flexion dorsale. Pas d'œdème.",
+      "Valgus calcanéen de 12° à droite et de 10° à gauche. Podobarométrie dynamique : hyperpression médiale de l'arrière-pied et déroulé du pas raccourci.",
+      "Pieds plats valgus décompensés avec instabilité à la marche et risque de chute.",
+      "Semelles orthopédiques thermoformées avec soutien de l'arche interne et cale postérieure de correction du valgus. Chaussures montantes à contrefort rigide, à renouveler.",
+      "Exercices de proprioception quotidiens (appui unipodal, dix minutes). Kinésithérapie d'équilibre à envisager avec le médecin traitant. Contrôle à trois mois."),
       { devisData: facture(28, [["Bilan podologique", 50], ["Semelles orthopédiques", 150]]), signatureFacture: "demo" }),
   ]),
   patient("demo-p8", "Inès", "CARON", "2002-07-04T00:00:00.000Z", "06 00 00 00 08", "Paris", [
     consult("demo-p8", 34, cr(
-      "Douleurs de l'avant-pied et des sésamoïdes après reprise des pointes.",
-      "Danseuse pré-professionnelle, 20 h d'entraînement par semaine. Reprise après 6 semaines d'arrêt.",
-      "Sensibilité des sésamoïdes en flexion dorsale de l'hallux. Hyperlaxité ligamentaire de la cheville.",
-      "Pied creux souple.",
-      "Sésamoïdite du 1er rayon droit sur pied creux souple.",
-      "Orthèse à décharge sésamoïdienne.",
-      "Adaptation du plan d'entraînement. Contrôle à 4 semaines."),
+      "Douleurs de l'avant-pied et des sésamoïdes après la reprise des pointes.",
+      "Patiente de 24 ans, danseuse pré-professionnelle, vingt heures d'entraînement par semaine dont dix sur pointes. Reprise il y a trois semaines après six semaines d'arrêt pour une entorse. Douleur sous le gros orteil droit, à type de brûlure lors des relevés, cotée 6/10. Antécédent d'entorse de la cheville droite. Aucune fracture de fatigue connue, aucun traitement en cours.",
+      "Sensibilité des sésamoïdes du premier rayon droit, notamment le sésamoïde médial, à la palpation et à l'extension passive de l'hallux. Pas de gonflement. Hyperlaxité ligamentaire de la cheville droite. Force des fléchisseurs de l'hallux conservée.",
+      "Pied creux souple bilatéral, avant-pied peu déformé, premier rayon en flexion plantaire marquée.",
+      "Sésamoïdite du premier rayon droit sur pied creux souple, en lien avec la reprise des pointes.",
+      "Orthèse plantaire à décharge sésamoïdienne (cuvette sous le premier rayon) pour les chaussons et les baskets. Protection du gros orteil pendant les cours.",
+      "Adaptation du plan d'entraînement : réduction des relevés sur pointes pendant trois semaines. Radiographie à prévoir si la douleur persiste. Contrôle à quatre semaines."),
       { devisData: facture(34, [["Bilan podologique", 50]]), signatureFacture: "demo" }),
   ]),
   patient("demo-p9", "Hugo", "VASSEUR", "2011-04-18T00:00:00.000Z", "06 00 00 00 09", "Paris", [
     consult("demo-p9", 1, cr(
-      "Douleur du talon à l'arrière du pied gauche pendant et après les matchs de football.",
-      "Adolescent de 15 ans en pleine croissance, football trois fois par semaine.",
-      "Douleur à la pression du calcanéus, à la jonction avec le tendon d'Achille. Pas de gonflement.",
-      "Raideur des mollets, pieds plats souples.",
+      "Douleur du talon gauche pendant et après les matchs de football, depuis trois semaines.",
+      "Adolescent de 15 ans en pleine croissance (six centimètres en un an), football trois fois par semaine plus un match le week-end, sur terrain synthétique. Douleur à la partie postérieure du talon gauche, à type de tiraillement, cotée 5/10 à l'effort, sans douleur au repos. Pas de traumatisme. Aucun traitement, pas d'antécédent familial.",
+      "Douleur à la pression latérale du calcanéus, à la jonction avec le tendon d'Achille (squeeze test positif). Pas de gonflement ni d'inflammation locale. Tendon d'Achille indolore. Marche sur la pointe des pieds possible mais douloureuse.",
+      "Raideur des mollets avec flexion dorsale limitée à 5° genou tendu. Pieds plats souples.",
       "Apophysite calcanéenne de croissance (maladie de Sever) du pied gauche.",
-      "Talonnettes amortissantes dans les crampons. Étirements des mollets.",
-      "Réduction des entraînements pendant 3 semaines. Contrôle à 1 mois."),
+      "Talonnettes amortissantes de 10 mm dans les crampons et les chaussures. Étirements quotidiens des mollets.",
+      "Réduction des entraînements pendant trois semaines, sans course ni sauts. Reprise progressive selon la douleur. Contrôle à un mois."),
       { devisData: facture(1, [["Bilan podologique", 50]]), signatureFacture: "demo" }),
   ]),
   patient("demo-p10", "Martine", "GIRARD", "1953-12-07T00:00:00.000Z", "06 00 00 00 10", "Créteil", [
     consult("demo-p10", 0, cr(
-      "Soin de pédicurie de routine, callosités et ongles épaissis.",
-      "Patiente de 71 ans, soins réguliers toutes les 6 semaines.",
-      "Hyperkératose des talons et de la pulpe des gros orteils. Onychogryphose des deux gros orteils.",
+      "Soin de pédicurie de routine : callosités des talons et ongles épaissis.",
+      "Patiente de 71 ans, soins toutes les six semaines. Gêne à la marche liée aux callosités, ongles difficiles à couper seule. Pas de diabète, pas de traitement anticoagulant. Hydrate ses pieds de façon irrégulière.",
+      "Hyperkératose des talons et de la pulpe des gros orteils. Onychogryphose des deux gros orteils, sans signe évident de mycose. Peau sèche, sans fissure profonde ni plaie. Pouls pédieux perçus.",
       "",
       "Callosités plantaires et onychogryphose sans signe de surinfection.",
-      "Détersion des callosités, taille et fraisage des ongles.",
-      "Crème hydratante à l'urée. Prochain soin dans 6 semaines."),
+      "Détersion des callosités, taille et fraisage des ongles épaissis.",
+      "Crème à l'urée matin et soir sur les talons. Prochain soin dans six semaines."),
       { typeConsultation: "pedicurie", devisData: facture(0, [["Soin de pédicurie", 35]]), signatureFacture: "demo" }),
   ]),
   patient("demo-p11", "Karim", "HADDAD", "1981-08-23T00:00:00.000Z", "06 00 00 00 11", "Paris", [
     consult("demo-p11", 1, cr(
-      "Douleurs plantaires bilatérales en fin de journée, travail debout (10 h par jour).",
-      "Chef de cuisine. Aucun antécédent notable.",
-      "Sensibilité diffuse de la voûte plantaire. Pieds plats souples avec valgus calcanéen de 8°.",
-      "Pronation excessive à la marche, fatigue musculaire du jambier postérieur.",
-      "Syndrome d'hyperpression plantaire sur pieds plats souples.",
-      "Semelles orthopédiques thermoformées à effet proprioceptif.",
-      "Chaussures de sécurité à semelle amortissante. Contrôle à 2 mois."),
+      "Douleurs plantaires bilatérales en fin de journée, dans un contexte de station debout prolongée.",
+      "Patient de 45 ans, chef de cuisine, dix heures de station debout par jour sur sol carrelé, chaussures de sécurité. Douleurs diffuses de la voûte plantaire et des talons depuis huit mois, cotées 6/10 le soir, soulagées par le repos. Aucun antécédent notable, pas de traitement.",
+      "Sensibilité diffuse de la voûte plantaire à la palpation. Pieds plats souples avec valgus calcanéen de 8°. Pas de douleur à l'insertion du fascia plantaire. Tendons d'Achille indolores.",
+      "Pronation excessive à la marche, fatigue du jambier postérieur. Hyperpression plantaire médiale à la podobarométrie.",
+      "Syndrome d'hyperpression plantaire sur pieds plats souples, favorisé par la station debout prolongée.",
+      "Semelles orthopédiques thermoformées à effet proprioceptif, avec soutien de l'arche interne.",
+      "Chaussures de sécurité à semelle amortissante, à renouveler tous les six mois. Micro-pauses avec surélévation des pieds. Contrôle à deux mois."),
       { devisData: facture(1, [["Bilan podologique", 50], ["Semelles orthopédiques", 150]]), signatureFacture: "demo" }),
   ]),
   patient("demo-p12", "Élodie", "MERCIER", "1988-10-15T00:00:00.000Z", "06 00 00 00 12", "Paris", [
     consult("demo-p12", 0, cr(
-      "Gonflement et douleur des pieds en fin de journée, au 6e mois de grossesse.",
-      "Première grossesse, prise de poids de 8 kg. Pas de pathologie veineuse connue.",
-      "Œdème bilatéral léger des chevilles, godet discret. Pieds plats de grossesse par relâchement ligamentaire.",
-      "Augmentation du valgus calcanéen de 4° par rapport au bilan précédent.",
+      "Gonflement et douleur des pieds en fin de journée, au sixième mois de grossesse.",
+      "Patiente de 38 ans, enceinte de vingt-quatre semaines (première grossesse), prise de poids de 8 kg. Gonflement des chevilles le soir, douleurs de la voûte plantaire et des talons, cotées 5/10. Pas de pathologie veineuse connue, pas d'hypertension gravidique, suivi régulier par la sage-femme.",
+      "Œdème bilatéral léger des chevilles, godet discret. Pieds plats de grossesse par relâchement ligamentaire. Pas de signe de phlébite. Pouls pédieux perçus.",
+      "Augmentation du valgus calcanéen de 4° par rapport au dernier bilan. Appuis plantaires élargis.",
       "Pieds plats valgus fonctionnels de grossesse avec œdème physiologique.",
-      "Semelles de confort à soutien de l'arche interne.",
-      "Surélévation des jambes le soir, chaussures larges. Contrôle après l'accouchement."),
+      "Semelles de confort à soutien de l'arche interne, adaptables après l'accouchement.",
+      "Surélévation des jambes le soir, chaussures larges et stables, bas de contention à voir avec la sage-femme. Contrôle après l'accouchement."),
       { devisData: facture(0, [["Bilan podologique", 50]]), signatureFacture: "demo" }),
   ]),
 ];
@@ -250,15 +250,15 @@ export const SCENARIOS = [
   {
     id: "s1", patientId: "demo-p1", titre: "Fasciite plantaire", sous: "Coureuse · talon droit", icone: "🏃‍♀️",
     dictee:
-      "Patiente de 34 ans, coureuse, environ 40 kilomètres par semaine. Elle consulte pour une douleur du talon droit depuis trois semaines, maximale au premier pas le matin, qui s'estompe à l'échauffement. Pas d'antécédent traumatique, pas de changement de chaussures récent. À l'examen : douleur exquise à la palpation du tubercule postéro-interne du calcanéus droit, majorée à l'extension de l'hallux. Pas de signe inflammatoire local. Pied creux souple, raideur du triceps sural. Je suspecte une fasciite plantaire. Plan : orthèses plantaires thermoformées avec soutien de l'arche interne, étirements du triceps sural et du fascia, glaçage le soir. Réduction du kilométrage de moitié pendant trois semaines, contrôle dans six semaines.",
+      "Patiente de 34 ans, infirmière en horaires alternés, coureuse à pied depuis six ans, environ quarante kilomètres par semaine sur trois sorties dont une séance de fractionné. Elle consulte pour une douleur du talon droit depuis trois semaines, apparue sans traumatisme après une augmentation rapide du volume, de trente à quarante-cinq kilomètres en deux semaines, et un changement de chaussures il y a deux mois avec un drop plus bas. Douleur en brûlure sous le talon, cotée sept sur dix au premier pas le matin, qui s'estompe à l'échauffement et réapparaît en fin de journée, pas de douleur nocturne. Antécédent d'entorse de la cheville droite en deux mille vingt et un, sans séquelle, aucun traitement en cours, semelles de confort de pharmacie sans effet. À l'examen : douleur exquise à la palpation du tubercule postéro-interne du calcanéus droit, majorée à l'extension de l'hallux, test du treuil positif. Pas de signe inflammatoire local, tendon d'Achille indolore. Pied creux souple, raideur du triceps sural avec une flexion dorsale de cheville limitée à dix degrés genou tendu. Podobarométrie : hyperpression du talon droit et de l'avant-pied externe. Je suspecte une fasciite plantaire. Plan : orthèses plantaires thermoformées avec soutien de l'arche interne et décharge du talon, étirements du triceps sural et du fascia, glaçage le soir, réduction du kilométrage de moitié pendant trois semaines, contrôle dans six semaines.",
     reportData: cr(
-      "Douleur du talon droit depuis 3 semaines, maximale au premier pas le matin, chez une coureuse (≈ 40 km par semaine).",
-      "Patiente de 34 ans, coureuse. Douleur qui s'estompe à l'échauffement. Pas d'antécédent traumatique, pas de changement de chaussures récent.",
-      "Douleur exquise à la palpation du tubercule postéro-interne du calcanéus droit, majorée à l'extension de l'hallux. Pas de signe inflammatoire local.",
-      "Pied creux souple. Raideur du triceps sural.",
-      "Suspicion de fasciite plantaire (épine calcanéenne) du pied droit.",
-      "Orthèses plantaires thermoformées avec soutien de l'arche interne. Étirements du triceps sural et du fascia plantaire. Glaçage local le soir.",
-      "Réduction du kilométrage de 50 % pendant 3 semaines. Contrôle à 6 semaines."),
+      "Douleur du talon droit évoluant depuis trois semaines, maximale au premier pas le matin, chez une patiente coureuse à pied.",
+      "Patiente de 34 ans, infirmière en horaires alternés, coureuse depuis six ans (environ 40 km par semaine sur trois sorties, dont une séance de fractionné). La douleur est apparue sans traumatisme après une augmentation rapide du volume d'entraînement (de 30 à 45 km en deux semaines) et un changement de chaussures il y a deux mois, avec un drop plus bas. Douleur en brûlure sous le talon, cotée 7/10 au premier pas le matin, qui s'estompe à l'échauffement et réapparaît en fin de journée. Pas de douleur nocturne. Antécédent d'entorse de la cheville droite en 2021, sans séquelle. Aucun traitement en cours. Des semelles de confort achetées en pharmacie n'ont apporté aucune amélioration.",
+      "Douleur exquise à la palpation du tubercule postéro-interne du calcanéus droit, à l'insertion du fascia plantaire, majorée à l'extension de l'hallux (test du treuil positif). Pas de signe inflammatoire local. Tendon d'Achille indolore à la palpation. Pied creux souple. Raideur du triceps sural : flexion dorsale de la cheville limitée à 10° genou tendu.",
+      "Podobarométrie : hyperpression du talon droit et de l'avant-pied externe. Pied creux souple avec raideur du triceps sural.",
+      "Suspicion de fasciite plantaire (épine calcanéenne possible) du pied droit, d'origine mécanique, favorisée par l'augmentation rapide du volume d'entraînement, le changement de chaussures et la raideur du triceps sural.",
+      "Confection d'orthèses plantaires thermoformées, à porter quotidiennement, avec soutien de l'arche interne et décharge du talon droit. Étirements du triceps sural et du fascia plantaire, deux fois par jour. Glaçage local le soir.",
+      "Réduction du kilométrage de 50 % pendant trois semaines, puis reprise progressive. Contrôle à six semaines pour évaluer la douleur et ajuster les orthèses. Consulter le médecin traitant en cas de douleur nocturne ou de persistance au-delà de six semaines."),
     patientBrut: {
       synthese: {
         motif: "Une douleur au talon droit, surtout au premier pas le matin, depuis trois semaines.",
@@ -292,15 +292,15 @@ export const SCENARIOS = [
   {
     id: "s2", patientId: "demo-p2", titre: "Pied diabétique", sous: "Suivi · risque de plaie", icone: "🩺",
     dictee:
-      "Patient de 67 ans, diabétique de type 2 depuis douze ans, consultation de suivi. Aucune plaie déclarée, pas d'antécédent d'ulcère. À l'examen : peau sèche avec fissures talonnières bilatérales, hyperkératose sous la première tête métatarsienne gauche. Monofilament : sensibilité diminuée sur trois points à gauche. Pouls pédieux perçus des deux côtés. Classement de risque podologique grade deux. Je réalise la détersion de l'hyperkératose et je prescris des semelles de décharge sur mesure. Hydratation à l'urée matin et soir, inspection quotidienne des pieds. Prochain contrôle dans trois mois.",
+      "Patient de 67 ans, retraité, ancien chauffeur-livreur, diabétique de type 2 depuis douze ans, traité par metformine, dernier taux d'hémoglobine glyquée à sept virgule un pour cent. Consultation de suivi podologique, aucune plaie déclarée, pas d'antécédent d'ulcère ni d'amputation. Il signale des picotements des orteils en fin de journée et une peau qui craque aux talons l'hiver. Il marche environ trente minutes par jour, chaussé de baskets un peu étroites. À l'examen : peau sèche avec fissures talonnières bilatérales, hyperkératose sous la première tête métatarsienne gauche, sans macération interdigitale. Monofilament : sensibilité diminuée sur trois points à gauche, conservée à droite. Diapason : pallesthésie diminuée aux gros orteils. Pouls pédieux et tibiaux postérieurs perçus des deux côtés, pas de trouble trophique. Classement de risque podologique grade deux. Je réalise la détersion de l'hyperkératose. Je prescris des semelles de décharge sur mesure avec décharge de la première tête métatarsienne, et je conseille des chaussures plus larges à contrefort souple. Hydratation à l'urée matin et soir, inspection quotidienne des pieds avec un miroir. Contrôle dans trois mois, courrier au médecin traitant.",
     reportData: cr(
-      "Suivi podologique d'un patient diabétique de type 2 (12 ans d'évolution), sans plaie déclarée.",
-      "Patient de 67 ans. Pas d'antécédent d'ulcère du pied.",
-      "Peau sèche, fissures talonnières bilatérales. Hyperkératose sous la 1re tête métatarsienne gauche. Pouls pédieux perçus des deux côtés.",
-      "Monofilament : sensibilité diminuée sur 3 points à gauche.",
+      "Suivi podologique d'un patient diabétique de type 2 (douze ans d'évolution), sans plaie déclarée.",
+      "Patient de 67 ans, retraité, ancien chauffeur-livreur. Diabète de type 2 depuis douze ans, traité par metformine ; dernier taux d'hémoglobine glyquée à 7,1 %. Pas d'antécédent d'ulcère du pied ni d'amputation. Picotements des orteils en fin de journée et peau qui craque aux talons l'hiver. Marche environ trente minutes par jour, chaussé de baskets un peu étroites.",
+      "Peau sèche avec fissures talonnières bilatérales. Hyperkératose sous la première tête métatarsienne gauche, sans macération interdigitale. Pouls pédieux et tibiaux postérieurs perçus des deux côtés. Pas de trouble trophique.",
+      "Monofilament : sensibilité diminuée sur trois points à gauche, conservée à droite. Diapason : pallesthésie diminuée aux gros orteils.",
       "Pied diabétique à risque, grade 2 : neuropathie sensitive sans artériopathie.",
-      "Détersion de l'hyperkératose réalisée en séance. Semelles de décharge sur mesure. Soin hydratant à base d'urée, matin et soir.",
-      "Inspection quotidienne des pieds, chaussures sans coutures internes. Contrôle à 3 mois."),
+      "Détersion de l'hyperkératose réalisée en séance. Semelles de décharge sur mesure avec décharge de la première tête métatarsienne. Soin hydratant à base d'urée, matin et soir.",
+      "Chaussures plus larges à contrefort souple. Inspection quotidienne des pieds, à l'aide d'un miroir. Contrôle à trois mois. Courrier au médecin traitant."),
     patientBrut: {
       synthese: {
         motif: "Un suivi régulier de vos pieds, à cause du diabète.",
@@ -331,15 +331,15 @@ export const SCENARIOS = [
   {
     id: "s3", patientId: "demo-p3", titre: "Bilan enfant", sous: "8 ans · marche en dedans", icone: "🧒",
     dictee:
-      "Enfant de 8 ans, adressée par les parents pour une marche en dedans avec chutes fréquentes et fatigue en fin de journée. Développement moteur normal, pas de douleur. À l'examen : genu valgum modéré, valgus calcanéen bilatéral d'environ dix degrés, pieds plats souples avec reconstitution de l'arche sur la pointe des pieds. Rotation interne de hanche augmentée. Il s'agit d'un pied plat valgus souple, d'allure physiologique, à surveiller. Pas de semelle à ce stade. Marche pieds nus régulière, exercices ludiques de renforcement de la voûte, contrôle dans six mois.",
+      "Enfant de 8 ans, adressée par ses parents pour une marche en dedans avec des chutes fréquentes et une fatigue des jambes en fin de journée. Développement moteur normal, marche acquise à quatorze mois, pas de douleur, pratique la danse une heure par semaine. Pas d'antécédent familial de pathologie du pied. Chaussures actuelles souples, remplacées tous les six mois. À l'examen : genu valgum modéré, valgus calcanéen bilatéral d'environ dix degrés, pieds plats souples avec reconstitution de l'arche sur la pointe des pieds, test de Jack positif. Rotation interne de hanche augmentée, pas de raideur du triceps sural. Appui unipodal correct de chaque côté. Il s'agit d'un pied plat valgus souple d'allure physiologique, à surveiller. Pas de semelle à ce stade. Marche pieds nus régulière sur sol varié, exercices ludiques de renforcement de la voûte, choix de chaussures souples et bien tenues. Contrôle dans six mois avec un nouveau bilan de croissance.",
     reportData: cr(
-      "Marche en dedans avec chutes fréquentes et fatigue en fin de journée, chez une enfant de 8 ans.",
-      "Développement moteur normal. Absence de douleur.",
-      "Genu valgum modéré. Valgus calcanéen bilatéral d'environ 10°. Rotation interne de hanche augmentée.",
-      "Pieds plats souples, arche reconstituée sur la pointe des pieds.",
+      "Marche en dedans avec des chutes fréquentes et une fatigue des jambes en fin de journée, chez une enfant de 8 ans.",
+      "Enfant de 8 ans adressée par ses parents. Développement moteur normal, marche acquise à 14 mois. Pas de douleur. Pratique la danse une heure par semaine. Pas d'antécédent familial de pathologie du pied. Chaussures actuelles souples, remplacées tous les six mois.",
+      "Genu valgum modéré. Valgus calcanéen bilatéral d'environ 10°. Rotation interne de hanche augmentée. Pas de raideur du triceps sural. Appui unipodal correct de chaque côté.",
+      "Pieds plats souples avec reconstitution de l'arche sur la pointe des pieds. Test de Jack positif.",
       "Pied plat valgus souple, d'allure physiologique, à surveiller.",
-      "Pas d'orthèse plantaire à ce stade. Marche pieds nus régulière. Exercices ludiques de renforcement de la voûte plantaire.",
-      "Contrôle à 6 mois."),
+      "Pas d'orthèse plantaire à ce stade. Marche pieds nus régulière sur sol varié. Exercices ludiques de renforcement de la voûte plantaire.",
+      "Chaussures souples et bien tenues. Contrôle à six mois avec un nouveau bilan de croissance."),
     patientBrut: {
       synthese: {
         motif: "Léa marche les pieds tournés vers l'intérieur et se fatigue en fin de journée.",
@@ -444,7 +444,7 @@ export const SCENARIOS_PEDICURIE = [
   {
     id: "s4", patientId: "demo-p10", mode: "pedicurie", titre: "Soin de pédicurie", sous: "Soin de routine · 71 ans", icone: "✂️",
     dictee:
-      "Patiente de 71 ans, soin de routine. Callosités épaisses des deux talons et de la pulpe des gros orteils, ongles épaissis avec onychogryphose. J'ai réalisé la détersion des callosités, la taille et le fraisage des ongles. Pas de signe de surinfection. Crème à l'urée matin et soir. Prochain soin dans six semaines.",
+      "Patiente de 71 ans, soin de pédicurie de routine, toutes les six semaines. Elle se plaint d'une gêne à la marche à cause des callosités des talons et d'ongles épaissis qu'elle ne peut plus couper seule. Pas de diabète, pas de traitement anticoagulant. À l'examen : hyperkératose des deux talons et de la pulpe des gros orteils, onychogryphose des deux gros orteils sans signe évident de mycose, peau sèche sans fissure profonde ni plaie, pouls pédieux perçus. J'ai réalisé la détersion des callosités, la taille et le fraisage des ongles épaissis. Pas de signe de surinfection. Crème à l'urée matin et soir sur les talons. Prochain soin dans six semaines.",
   },
 ];
 

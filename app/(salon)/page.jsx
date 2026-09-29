@@ -215,6 +215,8 @@ export default function AccueilDemo() {
   };
   const stopRecording = () => {
     setIsRecording(false);
+    // Arrêt après quelques secondes seulement : la transcription et le CR s'affichent en entier.
+    setMots(tousLesMots.length);
     setFinalisation(true);
     setTimeout(() => {
       const c = {

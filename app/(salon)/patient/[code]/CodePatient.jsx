@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, AlertCircle, FileQuestion, Lock, ArrowRight, RefreshCw } from "lucide-react";
 
 // Copie de app/patient/[qrCode]/page.jsx : seules les redirections diffèrent, elles restent dans la
-// démo (/demo/salon/patient/...) au lieu de sortir vers les vraies routes /patient/... de l'app.
+// démo (/patient/...) au lieu de sortir vers les vraies routes /patient/... de l'app.
 export default function DownloadPage({ params }) {
   const router = useRouter();
   const resolvedParams = use(params);
@@ -52,10 +52,10 @@ export default function DownloadPage({ params }) {
         if (data.consultationId) {
           setStatus('redirecting');
           if (data.isOrdonnance) {
-            router.push(`/demo/salon/patient/ordonnance/${data.consultationId}`);
+            router.push(`/patient/ordonnance/${data.consultationId}`);
           } else {
             const suffix = data.isPedicurie ? '?pedicurie=1' : '';
-            router.push(`/demo/salon/patient/signature/${data.consultationId}${suffix}`);
+            router.push(`/patient/signature/${data.consultationId}${suffix}`);
           }
           return;
         } else {

@@ -84,7 +84,7 @@ function RecentsSection({ consultations, router, onOpen }) {
     <div className="w-full max-w-5xl mt-14 mb-8 animate-in fade-in duration-500 delay-200 space-y-8">
       <div className="flex items-center justify-between px-2">
         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Récents</h3>
-        <button onClick={() => router.push("/demo/salon/patients")} className="text-xs font-bold text-[#4931F7] hover:underline">Tout voir</button>
+        <button onClick={() => router.push("/patients/")} className="text-xs font-bold text-[#4931F7] hover:underline">Tout voir</button>
       </div>
 
       {Object.values(groups).map((group) => (

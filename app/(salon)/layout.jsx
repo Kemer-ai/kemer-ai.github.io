@@ -13,7 +13,8 @@ import { installerApiFactice } from "./mock-api";
 import { installerFausseReconnaissance } from "./faux-micro";
 import { PRATICIEN_DEMO } from "./data";
 
-const BASE = "/demo/salon";
+// La démo est servie à la racine du site : pas de préfixe.
+const BASE = "";
 // Les <Link> et le routeur préfixent le sous-chemin de GitHub Pages, pas les URL d'image.
 const PREFIXE = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
@@ -106,7 +107,7 @@ function Coque({ children }) {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 h-16 md:h-20 bg-white/95 dark:bg-[#0b1121]/95 backdrop-blur-sm flex items-center justify-between px-4 md:px-10 border-b border-gray-100 dark:border-[#1a2333] z-[100] transition-colors duration-300">
-        <Link href={BASE} className="flex items-center gap-2 md:gap-3 flex-shrink-0 transition-opacity hover:opacity-80">
+        <Link href="/" className="flex items-center gap-2 md:gap-3 flex-shrink-0 transition-opacity hover:opacity-80">
           <ReactSVG src={`${PREFIXE}/logo-kemer.svg`} className="w-6 h-6 md:w-8 md:h-8 text-[#4ECDC4] flex-shrink-0" />
           <span className="text-lg md:text-xl font-black text-[#001F3F] dark:text-white tracking-tighter">
             KEMER<span className="text-[#4ECDC4]">.AI</span>
@@ -116,7 +117,7 @@ function Coque({ children }) {
         <div className="hidden md:flex absolute left-1/2 -translate-x-1/2">
           <LayoutGroup>
             <nav className="flex items-center gap-1 bg-gray-50/80 dark:bg-[#151e32] p-1.5 rounded-full border border-gray-100 dark:border-[#232d3f]">
-              <NavItem href={BASE} icon={<Home size={16} />} label="Accueil" active={accueil} />
+              <NavItem href="/" icon={<Home size={16} />} label="Accueil" active={accueil} />
               <NavItem href={`${BASE}/patients`} icon={<Users size={16} />} label="Mes Patients" active={patients} />
               <NavItem href={`${BASE}/comptabilite`} icon={<Calculator size={16} />} label="Comptabilité" active={compta} />
               <NavItem onClick={indisponible} icon={<BookOpen size={16} />} label="Aide" active={false} />
@@ -196,7 +197,7 @@ function Coque({ children }) {
 
       <LayoutGroup>
         <nav className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-fit bg-white/70 dark:bg-[#0b1121]/70 backdrop-blur-xl border border-white/50 dark:border-white/10 rounded-full shadow-2xl px-2 py-1.5 flex justify-center items-center gap-1">
-          <MobileNavItem href={BASE} icon={<Home size={22} />} active={accueil} />
+          <MobileNavItem href="/" icon={<Home size={22} />} active={accueil} />
           <MobileNavItem href={`${BASE}/patients`} icon={<Users size={22} />} active={patients} />
           <MobileNavItem href={`${BASE}/comptabilite`} icon={<Calculator size={22} />} active={compta} />
           <MobileNavItem onClick={indisponible} icon={<BookOpen size={22} />} active={false} />
@@ -233,7 +234,8 @@ export default function SalonLayout({ children }) {
   // différer entre le HTML serveur et le navigateur.
   if (!pret) return null;
   // Côté patient (téléphone du visiteur, via le QR) : plein écran, sans la navbar du cabinet.
-  if (pathname.startsWith(`${BASE}/patient`)) return children;
+  // (« /patient/ » avec sa barre : « /patients » est la liste du cabinet, qui a besoin de la coque.)
+  if (/^\/patient(\/|$)/.test(pathname)) return children;
   return (
     <DemoProvider>
       <Coque>{children}</Coque>

@@ -16,7 +16,7 @@ function Contenu() {
   // pouvoir la joindre (site déployé, ou adresse réseau du poste), pas « localhost ».
   const [origine] = useState(() => window.location.origin);
   const injoignable = LOCAL.test(window.location.hostname);
-  const cible = `${origine}${process.env.NEXT_PUBLIC_BASE_PATH || ""}/demo/salon/patient/${user.qrCodePatient}/`;
+  const cible = `${origine}${process.env.NEXT_PUBLIC_BASE_PATH || ""}/patient/${user.qrCodePatient}/`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(cible)}&color=001F3F`;
 
   return (

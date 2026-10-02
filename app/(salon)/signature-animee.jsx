@@ -3,7 +3,7 @@
 //
 // La page réelle (app/patient/signature) attend que le patient signe au doigt sur un canvas
 // (react-signature-canvas). Pour la démo, on pose sur ce canvas l'image de la signature (signature-png.js, la
-// même que celle des PDF) avec un balayage en diagonale (du bas à gauche vers le haut à droite) à bord très doux et une montée d'opacité. Le canvas
+// même que celle des PDF) avec un tracé au stylo. Le canvas
 // contient ensuite la signature : la page l'enregistre telle quelle (getTrimmedCanvas lit les pixels).
 // Elle réapparaît à chaque canvas vierge (étape devis, puis facture, ou après « Effacer »).
 //
@@ -12,10 +12,10 @@
 
 import { useEffect, useRef } from "react";
 import { SIGNATURE_PREENREGISTREE } from "./signature-png";
+import { traitsLisses } from "./signature-factice";
 
 const ATTENTE_AVANT_TRACE = 500; // ms : le temps de lire la page avant que la signature n'apparaisse
-const DUREE_TRACE = 1000; // ms : durée du balayage
-const BORD_DOUX = 0.45; // largeur du dégradé du balayage, en part de la diagonale de la signature
+const DUREE_TRACE = 1300; // ms : durée du tracé
 // Le point du « i » dans la signature (voir signature-factice.js et la marge de signature-png.js).
 const POINT = { x: 0.04 + 0.576 * 0.92, y: 0.08 + 0.38 * 0.84 };
 
@@ -42,8 +42,6 @@ const chargerImage = () => {
   return imageEnCache;
 };
 
-const ralentir = (p) => 1 - Math.pow(1 - p, 2.2); // départ vif, arrivée douce
-
 function envoyer(type, cible, clientX, clientY) {
   cible.dispatchEvent(new MouseEvent(type, {
     bubbles: true, cancelable: true, view: window, button: 0, buttons: type === "mouseup" ? 0 : 1, clientX, clientY,
@@ -60,8 +58,14 @@ function marquerNonVide(canvas, geometrie) {
   envoyer("mouseup", document, clientX, clientY);
 }
 
-// Pose la signature sur le canvas par un balayage ; renvoie une promesse (false si interrompu).
-function balayer(canvas, image, reduit, annule) {
+// Les traits, prêts à tracer : points lissés, longueur cumulée (pour que le stylo avance à vitesse régulière).
+const MARGE = { x: 0.04, y: 0.08 }; // même marge que l'image (signature-png.js)
+const traits = traitsLisses(0.0015);
+const total = traits.reduce((n, t) => n + t.length, 0);
+
+// Trace la signature au stylo, directement sur le canvas : même épaisseur que l'image (pleine au milieu du
+// trait, déliée aux extrémités). Renvoie une promesse (false si interrompu).
+function tracer(canvas, image, reduit, annule) {
   const ctx = canvas.getContext("2d");
   const cw = canvas.width;
   const ch = canvas.height;
@@ -69,49 +73,43 @@ function balayer(canvas, image, reduit, annule) {
   const geometrie = { largeur: image.width * echelle, hauteur: image.height * echelle };
   geometrie.x = (cw - geometrie.largeur) / 2;
   geometrie.y = (ch - geometrie.hauteur) / 2;
-  const tampon = document.createElement("canvas");
-  tampon.width = cw;
-  tampon.height = ch;
-  const tc = tampon.getContext("2d");
-  // Le balayage suit la diagonale : du coin bas-gauche au coin haut-droit de la signature.
-  const diagonale = Math.hypot(geometrie.largeur, geometrie.hauteur);
-  const ux = geometrie.largeur / diagonale;
-  const uy = -geometrie.hauteur / diagonale;
-  const ox = geometrie.x;
-  const oy = geometrie.y + geometrie.hauteur;
-  const bord = BORD_DOUX * diagonale;
+  const vers = ([x, y]) => [
+    geometrie.x + (MARGE.x + x * (1 - 2 * MARGE.x)) * geometrie.largeur,
+    geometrie.y + (MARGE.y + y * (1 - 2 * MARGE.y)) * geometrie.hauteur,
+  ];
 
-  const dessiner = (progression) => {
-    // 1. La signature seule, 2. un masque dont le bord doux avance en diagonale.
-    tc.globalCompositeOperation = "source-over";
-    tc.clearRect(0, 0, cw, ch);
-    tc.drawImage(image, geometrie.x, geometrie.y, geometrie.largeur, geometrie.hauteur);
-    const front = (diagonale + bord) * ralentir(progression);
-    const masque = tc.createLinearGradient(ox + ux * (front - bord), oy + uy * (front - bord), ox + ux * front, oy + uy * front);
-    masque.addColorStop(0, "rgba(0,0,0,1)");
-    masque.addColorStop(1, "rgba(0,0,0,0)");
-    tc.globalCompositeOperation = "destination-in";
-    tc.fillStyle = masque;
-    tc.fillRect(0, 0, cw, ch);
-    // 3. Sur le canvas de la page, avec une opacité qui monte. La page y applique un facteur d'échelle d'écran
-    //    (écrans Retina) : on dessine en pixels bruts, donc transformation remise à zéro le temps du dessin.
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, cw, ch);
-    ctx.globalAlpha = Math.min(1, 0.25 + progression * 1.5);
-    ctx.drawImage(tampon, 0, 0);
-    ctx.restore();
+  // La page applique un facteur d'échelle d'écran (Retina) : on dessine en pixels bruts.
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, cw, ch);
+  ctx.fillStyle = "#001F3F";
+  let posees = 0; // points déjà posés, tous traits confondus
+  const poser = (cible) => {
+    let debut = 0;
+    traits.forEach((trait) => {
+      const n = trait.length;
+      for (let i = Math.max(0, posees - debut); i < n && debut + i < cible; i++) {
+        const rayon = (1.6 + 0.9 * Math.pow(Math.sin((Math.PI * i) / (n - 1)), 0.5)) * echelle;
+        const [x, y] = vers(trait[i]);
+        ctx.beginPath();
+        ctx.arc(x, y, rayon, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      debut += n;
+    });
+    posees = Math.max(posees, cible);
   };
 
   return new Promise((resolve) => {
-    if (reduit) { dessiner(1); marquerNonVide(canvas, geometrie); resolve(true); return; }
+    const fin = () => { ctx.restore(); marquerNonVide(canvas, geometrie); resolve(true); };
+    if (reduit) { poser(total); fin(); return; }
     const debut = performance.now();
     const image_ = (maintenant) => {
-      if (annule() || !canvas.isConnected) { resolve(false); return; }
+      if (annule() || !canvas.isConnected) { ctx.restore(); resolve(false); return; }
       const progression = Math.min(1, (maintenant - debut) / DUREE_TRACE);
-      dessiner(progression);
+      poser(Math.round(total * progression));
       if (progression < 1) requestAnimationFrame(image_);
-      else { marquerNonVide(canvas, geometrie); resolve(true); }
+      else fin();
     };
     requestAnimationFrame(image_);
   });
@@ -125,7 +123,7 @@ export default function SignatureAnimee({ children }) {
     let vivant = true;
     let enCours = false;
     let minuteur = null;
-    let version = 0; // un redimensionnement efface le canvas : le balayage en cours est abandonné
+    let version = 0; // un redimensionnement efface le canvas : le tracé en cours est abandonné
 
     function interrompre() {
       version += 1;
@@ -139,7 +137,7 @@ export default function SignatureAnimee({ children }) {
       const maVersion = version;
       try {
         const image = await chargerImage();
-        await balayer(canvas, image, reduit, () => !vivant || version !== maVersion);
+        await tracer(canvas, image, reduit, () => !vivant || version !== maVersion);
       } catch {
         /* image illisible : la page reste utilisable, le patient signe au doigt */
       }

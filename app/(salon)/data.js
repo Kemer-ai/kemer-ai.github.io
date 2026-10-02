@@ -2,6 +2,8 @@
 // Consultation) : les vrais composants de l'app les affichent sans adaptation. Aucun lien avec
 // la base, aucun vrai patient.
 
+import { SIGNATURE_PREENREGISTREE } from "./signature-png";
+
 const JOUR = 24 * 3600 * 1000;
 // 10 h UTC : le même jour calendaire en France, quel que soit le fuseau du navigateur.
 const ilYa = (jours) => {
@@ -141,7 +143,7 @@ export const PATIENTS_INITIAUX = [
       "Hallux valgus symptomatique du pied gauche avec bursite et métatarsalgie de transfert sous la deuxième tête. Hallux valgus débutant à droite.",
       "Confection d'orthèses plantaires avec soutien du premier rayon et barre rétro-capitale de décharge de la deuxième tête métatarsienne. Écarteur d'orteil nocturne en silicone. Protecteur de bursite pour les chaussures fermées.",
       "Chaussures à boîte à orteils large, talon inférieur à 3 cm, sans couture sur la déformation. Avis orthopédique à envisager si la douleur persiste après trois mois de traitement conservateur. Contrôle à trois mois."),
-      { devisData: facture(12, [["Bilan podologique", 50], ["Semelles orthopédiques", 150]]), signatureFacture: "demo" }),
+      { devisData: facture(12, [["Bilan podologique", 50], ["Semelles orthopédiques", 150]]), signatureFacture: SIGNATURE_PREENREGISTREE, signatureDevis: SIGNATURE_PREENREGISTREE }),
   ]),
   patient("demo-p5", "Julien", "PERRIN", "1985-05-30T00:00:00.000Z", "06 00 00 00 05", "Vincennes", [
     consult("demo-p5", 17, cr(
@@ -152,7 +154,7 @@ export const PATIENTS_INITIAUX = [
       "Tendinopathie corporéale du tendon d'Achille droit, d'origine mécanique, favorisée par une augmentation rapide de la charge d'entraînement.",
       "Talonnette temporaire de 8 mm dans les chaussures de course et de ville. Orthèses plantaires thermoformées à effet de contrôle de la pronation, à réaliser après trois semaines. Protocole de renforcement excentrique du triceps sural (trois séries de quinze, deux fois par jour).",
       "Réduction de 30 % du volume de course pendant trois semaines, sans séance de côtes ni de fractionné. Reprise progressive selon la douleur. Contrôle à un mois, avec échographie si la douleur persiste."),
-      { devisData: facture(17, [["Bilan podologique", 50]]), signatureFacture: "demo" }),
+      { devisData: facture(17, [["Bilan podologique", 50]]), signatureFacture: SIGNATURE_PREENREGISTREE, signatureDevis: SIGNATURE_PREENREGISTREE }),
   ]),
   patient("demo-p6", "Nadia", "BENALI", "1997-09-12T00:00:00.000Z", "06 00 00 00 06", "Paris", [
     consult("demo-p6", 21, cr(
@@ -163,7 +165,7 @@ export const PATIENTS_INITIAUX = [
       "Verrue plantaire (papillomavirus humain) de l'avant-pied droit.",
       "Détersion de la lésion et application d'un kératolytique (acide salicylique). Mise en place d'un feutre de décharge autour de la lésion.",
       "Renouveler l'application de kératolytique chaque soir après détersion à domicile. Port de sandales en piscine et dans les vestiaires. Contrôle à quinze jours, cryothérapie envisagée en cas de persistance."),
-      { typeConsultation: "pedicurie", devisData: facture(21, [["Soin de pédicurie", 35]]), signatureFacture: "demo" }),
+      { typeConsultation: "pedicurie", devisData: facture(21, [["Soin de pédicurie", 35]]), signatureFacture: SIGNATURE_PREENREGISTREE, signatureDevis: SIGNATURE_PREENREGISTREE }),
   ]),
   patient("demo-p7", "Gérard", "LAMBERT", "1952-02-25T00:00:00.000Z", "06 00 00 00 07", "Paris", [
     consult("demo-p7", 28, cr(
@@ -174,7 +176,7 @@ export const PATIENTS_INITIAUX = [
       "Pieds plats valgus décompensés avec instabilité à la marche et risque de chute.",
       "Semelles orthopédiques thermoformées avec soutien de l'arche interne et cale postérieure de correction du valgus. Chaussures montantes à contrefort rigide, à renouveler.",
       "Exercices de proprioception quotidiens (appui unipodal, dix minutes). Kinésithérapie d'équilibre à envisager avec le médecin traitant. Contrôle à trois mois."),
-      { devisData: facture(28, [["Bilan podologique", 50], ["Semelles orthopédiques", 150]]), signatureFacture: "demo" }),
+      { devisData: facture(28, [["Bilan podologique", 50], ["Semelles orthopédiques", 150]]), signatureFacture: SIGNATURE_PREENREGISTREE, signatureDevis: SIGNATURE_PREENREGISTREE }),
   ]),
   patient("demo-p8", "Inès", "CARON", "2002-07-04T00:00:00.000Z", "06 00 00 00 08", "Paris", [
     consult("demo-p8", 34, cr(
@@ -185,7 +187,7 @@ export const PATIENTS_INITIAUX = [
       "Sésamoïdite du premier rayon droit sur pied creux souple, en lien avec la reprise des pointes.",
       "Orthèse plantaire à décharge sésamoïdienne (cuvette sous le premier rayon) pour les chaussons et les baskets. Protection du gros orteil pendant les cours.",
       "Adaptation du plan d'entraînement : réduction des relevés sur pointes pendant trois semaines. Radiographie à prévoir si la douleur persiste. Contrôle à quatre semaines."),
-      { devisData: facture(34, [["Bilan podologique", 50]]), signatureFacture: "demo" }),
+      { devisData: facture(34, [["Bilan podologique", 50]]), signatureFacture: SIGNATURE_PREENREGISTREE, signatureDevis: SIGNATURE_PREENREGISTREE }),
   ]),
   patient("demo-p9", "Hugo", "VASSEUR", "2011-04-18T00:00:00.000Z", "06 00 00 00 09", "Paris", [
     consult("demo-p9", 1, cr(
@@ -196,7 +198,7 @@ export const PATIENTS_INITIAUX = [
       "Apophysite calcanéenne de croissance (maladie de Sever) du pied gauche.",
       "Talonnettes amortissantes de 10 mm dans les crampons et les chaussures. Étirements quotidiens des mollets.",
       "Réduction des entraînements pendant trois semaines, sans course ni sauts. Reprise progressive selon la douleur. Contrôle à un mois."),
-      { devisData: facture(1, [["Bilan podologique", 50]]), signatureFacture: "demo" }),
+      { devisData: facture(1, [["Bilan podologique", 50]]), signatureFacture: SIGNATURE_PREENREGISTREE, signatureDevis: SIGNATURE_PREENREGISTREE }),
   ]),
   patient("demo-p10", "Martine", "GIRARD", "1953-12-07T00:00:00.000Z", "06 00 00 00 10", "Créteil", [
     consult("demo-p10", 0, cr(
@@ -207,7 +209,7 @@ export const PATIENTS_INITIAUX = [
       "Callosités plantaires et onychogryphose sans signe de surinfection.",
       "Détersion des callosités, taille et fraisage des ongles épaissis.",
       "Crème à l'urée matin et soir sur les talons. Prochain soin dans six semaines."),
-      { typeConsultation: "pedicurie", devisData: facture(0, [["Soin de pédicurie", 35]]), signatureFacture: "demo" }),
+      { typeConsultation: "pedicurie", devisData: facture(0, [["Soin de pédicurie", 35]]), signatureFacture: SIGNATURE_PREENREGISTREE, signatureDevis: SIGNATURE_PREENREGISTREE }),
   ]),
   patient("demo-p11", "Karim", "HADDAD", "1981-08-23T00:00:00.000Z", "06 00 00 00 11", "Paris", [
     consult("demo-p11", 1, cr(
@@ -218,7 +220,7 @@ export const PATIENTS_INITIAUX = [
       "Syndrome d'hyperpression plantaire sur pieds plats souples, favorisé par la station debout prolongée.",
       "Semelles orthopédiques thermoformées à effet proprioceptif, avec soutien de l'arche interne.",
       "Chaussures de sécurité à semelle amortissante, à renouveler tous les six mois. Micro-pauses avec surélévation des pieds. Contrôle à deux mois."),
-      { devisData: facture(1, [["Bilan podologique", 50], ["Semelles orthopédiques", 150]]), signatureFacture: "demo" }),
+      { devisData: facture(1, [["Bilan podologique", 50], ["Semelles orthopédiques", 150]]), signatureFacture: SIGNATURE_PREENREGISTREE, signatureDevis: SIGNATURE_PREENREGISTREE }),
   ]),
   patient("demo-p12", "Élodie", "MERCIER", "1988-10-15T00:00:00.000Z", "06 00 00 00 12", "Paris", [
     consult("demo-p12", 0, cr(
@@ -229,7 +231,7 @@ export const PATIENTS_INITIAUX = [
       "Pieds plats valgus fonctionnels de grossesse avec œdème physiologique.",
       "Semelles de confort à soutien de l'arche interne, adaptables après l'accouchement.",
       "Surélévation des jambes le soir, chaussures larges et stables, bas de contention à voir avec la sage-femme. Contrôle après l'accouchement."),
-      { devisData: facture(0, [["Bilan podologique", 50]]), signatureFacture: "demo" }),
+      { devisData: facture(0, [["Bilan podologique", 50]]), signatureFacture: SIGNATURE_PREENREGISTREE, signatureDevis: SIGNATURE_PREENREGISTREE }),
   ]),
 ];
 

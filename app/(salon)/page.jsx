@@ -2,19 +2,21 @@
 // Accueil de la démo : mêmes composants que l'accueil de l'app (WelcomeHeader, PatientSelector,
 // RecordingBlock, LiveConsultationView, ValidationBlock, importés de app/Home.jsx), pilotés par
 // une dictée scriptée au lieu du micro. Le CR se construit au fil de la dictée, comme en vrai.
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { Footprints, Scissors, Receipt, FileSignature, FileText, ChevronRight, X, Check, Zap, ChevronDown, ChevronUp, RotateCcw } from "lucide-react";
+import { Footprints, Scissors, Receipt, FileSignature, FileText, ChevronRight, X, Check, Zap, ChevronDown, ChevronUp, RotateCcw, PenLine } from "lucide-react";
 import {
   WelcomeHeader, PatientSelector, RecordingBlock, LiveConsultationView, ValidationBlock,
   PedicurieBlock, FacturationBlock,
 } from "@/app/Home";
 import OrdonnanceBlock from "@/components/OrdonnanceBlock";
+import SignaturePatient from "@/components/patient/SignaturePatient";
 import ConsultationModal from "@/components/ConsultationModal";
 import { formatPrenom, formatNom } from "@/lib/formatName";
 import { useDemo } from "./demo-context";
 import { PRATICIEN_DEMO, SCENARIOS, SCENARIOS_PEDICURIE, PALIERS } from "./data";
 import { definirDictee, definirVitesse, installerFauxEnregistreur } from "./faux-micro";
+import SignatureAnimee from "./signature-animee";
 import { enregistrerCR } from "./mock-api";
 
 const formatTime = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
@@ -132,6 +134,8 @@ export default function AccueilDemo() {
   // Facture créée en fin de consultation : l'ordonnance qui suit lui est rattachée (comme dans l'app).
   const [lieeId, setLieeId] = useState(null);
   const [lieePatient, setLieePatient] = useState(null);
+  // Écran du patient (la vraie page de signature) ouvert par-dessus, pour signer le devis ou la facture créés.
+  const [ecranPatient, setEcranPatient] = useState(null);
 
   const [selectedPatient, setSelectedPatient] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -242,7 +246,7 @@ export default function AccueilDemo() {
     setShowLive(false); setIsRecording(false); setIsPaused(false); setRecordingTime(0); setMots(0);
     setFinalisation(false); setConsultation(null); setDossier(false);
     setSelectedPatient(""); setSearchTerm(""); setMode(null);
-    setLieeId(null); setLieePatient(null);
+    setLieeId(null); setLieePatient(null); setEcranPatient(null);
   };
 
   // Fin de consultation : le CR (ou le soin) mène à la facture, la facture à l'ordonnance.
@@ -273,6 +277,19 @@ export default function AccueilDemo() {
     () => patients.flatMap((p) => p.consultations.map((c) => ({ ...c, patient: p }))).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 15),
     [patients],
   );
+
+  // Document créé en fin de consultation et pas encore signé : le patient peut signer depuis « son » écran.
+  const aSigner = useMemo(
+    () => (lieeId ? patients.flatMap((p) => p.consultations).find((c) => c.id === lieeId && c.devisData && !c.signatureFacture) : null),
+    [patients, lieeId],
+  );
+  const ouvrirEcranPatient = () => {
+    const valeur = { consultationId: lieeId };
+    const params = Promise.resolve(valeur);
+    params.status = "fulfilled"; // la page lit ses paramètres avec use() : une promesse déjà résolue évite d'attendre
+    params.value = valeur;
+    setEcranPatient({ params });
+  };
 
   const dossierConsult = consultation && { ...consultation, patient: patientObj };
 
@@ -416,8 +433,26 @@ export default function AccueilDemo() {
         </div>
       )}
 
+      {/* Écran du patient : la vraie page de signature (devis, puis facture), comme sur son téléphone. */}
+      {ecranPatient && (
+        <>
+          <Suspense fallback={null}><SignatureAnimee><SignaturePatient params={ecranPatient.params} /></SignatureAnimee></Suspense>
+          <div className="fixed top-3 left-3 z-[1000] flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#001F3F] text-white text-[11px] font-black uppercase tracking-widest shadow-lg">
+            <PenLine size={12} /> Écran du patient · simulation
+          </div>
+          <button onClick={() => setEcranPatient(null)} className="fixed top-3 right-3 z-[1000] flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#001F3F] text-white text-xs font-black shadow-lg hover:bg-slate-900">
+            Fermer <X size={14} />
+          </button>
+        </>
+      )}
+
       {/* Raccourcis du présentateur : ne fait pas partie de l'interface Kemer. */}
-      <div className="fixed left-4 bottom-24 md:bottom-4 z-[120]">
+      <div className="fixed left-4 bottom-24 md:bottom-4 z-[120] flex flex-col items-start gap-2">
+        {aSigner && !ecranPatient && (
+          <button onClick={ouvrirEcranPatient} className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-[#4ECDC4] text-[#001F3F] text-sm font-black shadow-2xl hover:scale-105 transition-transform animate-pulse">
+            <PenLine size={16} /> Faire signer le patient
+          </button>
+        )}
         {panneau ? (
           <div className="bg-[#001F3F]/95 text-white rounded-2xl shadow-2xl p-3 w-60 backdrop-blur">
             <div className="flex items-center justify-between mb-2">

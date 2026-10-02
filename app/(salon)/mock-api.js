@@ -90,6 +90,35 @@ export function installerApiFactice() {
       }
       return json({ success: true });
     }
+    // Signature du patient (page /patient/signature) : mêmes effets que la vraie route.
+    const signature = route.match(/^\/api\/consultations\/([^/]+)\/sign$/);
+    if (signature && methode === "POST") {
+      const id = signature[1];
+      const { signature: image, type } = corps(init);
+      if (!image) return json({ error: "Signature manquante" }, 400);
+      // Les documents du parcours QR du visiteur (demo-qr-*) ne gardent pas la signature : chaque visiteur
+      // repart d'un document à signer.
+      if (id.startsWith("demo-qr-")) return json({ success: true });
+      const e = registre.get(id);
+      if (!e) return json({ error: "Consultation introuvable" }, 404);
+      let maj = e.consultation;
+      if (type === "pedicurie" || type === "ordonnance") {
+        // Ne pas écraser une vraie signature par « DOWNLOADED ».
+        if (!maj.signatureFacture || maj.signatureFacture === "DOWNLOADED") maj = { ...maj, signatureFacture: "DOWNLOADED" };
+      } else if (type === "devis") {
+        maj = {
+          ...maj, signatureDevis: image,
+          devisData: maj.devisData ? { ...maj.devisData, status: "SIGNED", signedAt: new Date().toISOString() } : null,
+        };
+      } else if (type === "facture") {
+        maj = { ...maj, signatureFacture: image };
+      } else {
+        return json({ error: "Type de signature inconnu" }, 400);
+      }
+      registre.set(id, { ...e, consultation: maj });
+      ecouteur?.maj(maj); // le dossier du patient, la comptabilité et les PDF voient la signature
+      return json({ success: true });
+    }
     if (fiche && methode === "DELETE") {
       registre.delete(fiche[1]);
       ecouteur?.suppr(fiche[1]);

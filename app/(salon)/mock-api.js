@@ -2,7 +2,8 @@
 // Dans la démo, aucun de ces appels ne doit partir : ils reçoivent une réponse factice locale.
 // Tout ce qui n'est pas /api/ (polices, images, scripts) passe normalement.
 import { normaliser } from "@/lib/patientReport";
-import { CABINET_DEMO, ORDONNANCE_DICTEE, CONSULTATIONS_QR, DOCUMENTS_QR, PATIENTS_COMPTA, EQUIPE } from "./data";
+import { courrierAdressage, resumeConfrere, courrierVide } from "./textes-factices";
+import { CABINET_DEMO, PRATICIEN_DEMO, ORDONNANCE_DICTEE, CONSULTATIONS_QR, DOCUMENTS_QR, PATIENTS_COMPTA, EQUIPE } from "./data";
 
 // Consultations connues de la démo : la version « patient » d'un CR est mise en page par le vrai
 // PatientReportPDF à partir de textes préparés, sans appel au modèle.
@@ -38,6 +39,14 @@ function creer(patientId, extra) {
 // suite, sans qu'aucun e-mail ne parte. « Réinitialiser » le remet à l'état d'origine.
 let cabinet = structuredClone(CABINET_DEMO);
 export const reinitialiserCabinet = () => { cabinet = structuredClone(CABINET_DEMO); };
+
+// Texte « généré » rangé dans le CR de la consultation (comme le fait la vraie route), pour qu'il survive à la navigation.
+function rangerDansLeCR(id, e, patch) {
+  const maj = { ...e.consultation, reportData: { ...e.consultation.reportData, ...patch } };
+  registre.set(id, { ...e, consultation: maj });
+  ecouteur?.maj(maj);
+}
+const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -191,6 +200,30 @@ export function installerApiFactice() {
     if (membre) {
       if (methode === "DELETE") cabinet = { ...cabinet, membres: cabinet.membres.filter((m) => m.id !== membre[1]) };
       if (methode === "PATCH") cabinet = { ...cabinet, membres: cabinet.membres.map((m) => (m.id === membre[1] ? { ...m, pourcentageReversement: corps(init).pourcentageReversement } : m)) };
+      return json({ success: true });
+    }
+
+    // Courrier d'adressage et résumé pour les confrères : aucun modèle d'IA, un texte assemblé à partir du CR
+    // (textes-factices.js), après le temps d'une « génération ».
+    if ((route === "/api/generate-courrier-adressage" || route === "/api/generate-confrere-summary") && methode === "POST") {
+      const id = corps(init).consultationId;
+      const e = registre.get(id);
+      await attendre(1400);
+      if (!e) return json({ error: "Consultation introuvable" }, 404);
+      const rd = e.consultation.reportData;
+      if (courrierVide(rd)) return json({ error: "Aucun compte rendu disponible pour générer le document." }, 400);
+      if (route === "/api/generate-courrier-adressage") {
+        const courrier = courrierAdressage({ reportData: rd, patient: e.patient, praticien: PRATICIEN_DEMO });
+        rangerDansLeCR(id, e, { courrier_adressage: courrier });
+        return json({ courrier_adressage: courrier });
+      }
+      const resume = resumeConfrere(rd);
+      rangerDansLeCR(id, e, { resume_confreres: resume });
+      return json({ resume_confreres: resume });
+    }
+    // Envoi du courrier au médecin : rien ne part, la démo répond « envoyé ».
+    if (route === "/api/send-courrier-medecin" && methode === "POST") {
+      await attendre(900);
       return json({ success: true });
     }
 

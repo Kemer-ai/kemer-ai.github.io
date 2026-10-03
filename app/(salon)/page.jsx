@@ -14,7 +14,7 @@ import SignaturePatient from "@/components/patient/SignaturePatient";
 import ConsultationModal from "@/components/ConsultationModal";
 import { formatPrenom, formatNom } from "@/lib/formatName";
 import { useDemo } from "./demo-context";
-import { PRATICIEN_DEMO, SCENARIOS, SCENARIOS_PEDICURIE, PALIERS } from "./data";
+import { PRATICIEN_DEMO, SCENARIOS, SCENARIOS_PEDICURIE, PALIERS, photosDuCR } from "./data";
 import { definirDictee, definirVitesse, installerFauxEnregistreur } from "./faux-micro";
 import SignatureAnimee from "./signature-animee";
 import { enregistrerCR } from "./mock-api";
@@ -233,7 +233,7 @@ export default function AccueilDemo() {
         reportData: scenario.reportData,
         transcription: scenario.dictee,
         devisData: null, factureData: null, ordonnanceData: null,
-        signatureDevis: null, signatureFacture: null, photos: null, notes: null,
+        signatureDevis: null, signatureFacture: null, photos: photosDuCR(scenario.reportData), notes: null,
       };
       enregistrerCR(c, patientObj, scenario.patientBrut);
       ajouterConsultation(selectedPatient, c);

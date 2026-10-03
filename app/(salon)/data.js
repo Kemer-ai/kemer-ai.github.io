@@ -3,6 +3,8 @@
 // la base, aucun vrai patient.
 
 import { SIGNATURE_PREENREGISTREE } from "./signature-png";
+import { ENTETE_THOMAS_DURAND, PIED_THOMAS_DURAND } from "./entete-pied";
+import { IMAGE_BAROPODOMETRIE } from "./baropodo-image";
 
 const JOUR = 24 * 3600 * 1000;
 // 10 h UTC : le même jour calendaire en France, quel que soit le fuseau du navigateur.
@@ -25,8 +27,9 @@ export const PRATICIEN_DEMO = {
   nomenclatures: [],
   abonnement: "pro",
   photo: "",
-  headerImage: "",
-  footerImage: "",
+  // En-tête et pied de page médicaux de Thomas Durand : ils s'impriment sur les PDF des devis, factures et ordonnances.
+  headerImage: ENTETE_THOMAS_DURAND,
+  footerImage: PIED_THOMAS_DURAND,
   qrCodePatient: "demo",
   cabinetId: "demo-cabinet",
   cabinetRole: "responsable",
@@ -234,6 +237,12 @@ export const PATIENTS_INITIAUX = [
       { devisData: facture(0, [["Bilan podologique", 50]]), signatureFacture: SIGNATURE_PREENREGISTREE, signatureDevis: SIGNATURE_PREENREGISTREE }),
   ]),
 ];
+
+// Un CR qui s'appuie sur une podobarométrie porte l'image de l'analyse statique (comme une photo jointe au dossier).
+const MENTION_BAROPODO = /podobarom|baropod/i;
+export const photosDuCR = (reportData) =>
+  MENTION_BAROPODO.test(Object.values(reportData || {}).join(" ")) ? [IMAGE_BAROPODOMETRIE] : null;
+PATIENTS_INITIAUX.forEach((p) => p.consultations.forEach((c) => { c.photos = c.photos ?? photosDuCR(c.reportData); }));
 
 // Trois consultations « live » prêtes à jouer. `dictee` défile mot à mot ; chaque clé du CR
 // apparaît quand la dictée atteint `palier` (part de la dictée déjà prononcée), comme le CR
